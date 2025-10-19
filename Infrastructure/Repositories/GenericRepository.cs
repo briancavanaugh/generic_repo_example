@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
+﻿using System.ComponentModel;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Dapper;
 using Infrastructure.Interfaces;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repositories
 {
     public abstract class GenericRepository<T> : IGenericRepository<T> where T: class
     {
         private readonly string _tableName;
+        private readonly string _connectionString;
 
-        protected GenericRepository(string tableName)
+        protected GenericRepository(string tableName, string connectionString)
         {
             _tableName = tableName;
+            _connectionString = connectionString;
         }
         /// <summary>
         /// Generate new connection based on connection string
@@ -27,7 +25,7 @@ namespace Infrastructure.Repositories
         /// <returns></returns>
         private SqlConnection SqlConnection()
         {
-            return new SqlConnection(ConfigurationManager.ConnectionStrings["MainDb"].ConnectionString);
+            return new SqlConnection(_connectionString);
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Configuration;
-using System.Reflection;
+﻿using System.Reflection;
 using DbUp;
+using Microsoft.Extensions.Configuration;
 
 namespace DbMigration
 {
@@ -9,7 +8,20 @@ namespace DbMigration
     {
         static int Main(string[] args)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["MainDb"].ConnectionString;
+            // Build configuration
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            var connectionString = configuration.GetConnectionString("MainDb");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Connection string 'MainDb' not found.");
+                Console.ResetColor();
+                return -1;
+            }
 
             EnsureDatabase.For.SqlDatabase(connectionString);
             
